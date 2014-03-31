@@ -50,7 +50,7 @@ var collated = function(input, getSchema) {
 
 var addLog = function(batch, time, entity, attr, op) {
   var vals = Array.prototype.slice.call(arguments, 5);
-  batch.put(encode(['log', time, entity, attr, op].concat(vals)), '');
+  batch.put(encode(['log', time, entity, attr, op].concat(vals)), '.');
 };
 
 
@@ -112,7 +112,7 @@ module.exports = function(storage, schema) {
             value: item.value
           }
         },
-        storage.readRange({
+        storage.read({
           start: encode(prefix.concat(from)),
           end  : encode(prefix.concat(to)),
           limit: (limit == null ? -1 : limit)
