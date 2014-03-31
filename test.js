@@ -2,11 +2,9 @@
 
 var memdown  = require('memdown');
 
-var cc   = require('ceci-core');
-var chan = require('ceci-channels');
-
-var level   = require('./leveldb');
-var curated = require('./index');
+var cc     = require('ceci-core');
+var chan   = require('ceci-channels');
+var engine = require('./index');
 
 
 var formatEntity = function(db, key) {
@@ -27,7 +25,7 @@ var formatAttribute = function(db, key) {
 };
 
 
-var show = function(rawDB, db, entities, attributes) {
+var show = function(db, entities, attributes) {
   return cc.go(function*() {
     var i;
 
@@ -65,8 +63,7 @@ var schema = {
 
 
 cc.top(cc.go(function*() {
-  var rawDB  = yield level('', { db: memdown });
-  var db = yield curated(rawDB, schema);
+  var db = yield engine('', schema, { db: memdown });
   var entities = ['olaf', 'delaney', 'grace'];
   var attributes = ['greeting', 'age', 'weight', 'height', 'parents'];
 
@@ -92,7 +89,7 @@ cc.top(cc.go(function*() {
       parents : 'olaf'
     })]);
 
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   console.log('weights between 20 and 50:',
               yield db.byAttribute('weight', { from: 20, to: 50 }));
@@ -104,23 +101,23 @@ cc.top(cc.go(function*() {
 
   console.log('--- after adding olaf and delaney to grace\'s parents: ---');
   yield db.updateEntity('grace', { parents: ['olaf', 'delaney'] });
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   console.log('--- after changing olaf\'s weight: ---');
   yield db.updateAttribute('weight', { olaf: 86 });
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   console.log('--- after deleting delaney: ---');
   yield db.destroyEntity('delaney');
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   console.log('--- after deleting weights: ---');
   yield db.destroyAttribute('weight');
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   console.log('--- after unlisting olaf and delaney as grace\'s parents: ---');
   yield db.unlist('grace', 'parents', ['olaf', 'delaney']);
-  yield show(rawDB, db, entities, attributes);
+  yield show(db, entities, attributes);
 
   db.close();
 }));

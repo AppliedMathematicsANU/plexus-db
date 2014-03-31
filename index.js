@@ -1,5 +1,6 @@
 'use strict';
 
+var levelup  = require('levelup');
 var bops     = require('bops');
 var bytewise = require('bytewise');
 
@@ -94,29 +95,29 @@ var putDatum = function(batch, entity, attr, val, old, attrSchema, time) {
 };
 
 
-module.exports = function(storage, schema) {
+module.exports = function(path, schema, options) {
   schema = schema || {};
 
   return cc.go(function*() {
+    var db = yield cc.nbind(levelup)(path, options);
     var lock = chan.createLock();
 
     var scan = function(prefix, range, limit) {
-      var n = prefix.length;
-      var from = range ? range.from : null;
-      var to   = range ? range.to : undefined;
+       var stream = db.createReadStream({
+        start: encode(prefix.concat(range ? range.from : null)),
+        end  : encode(prefix.concat(range ? range.to : undefined)),
+        limit: (limit == null ? -1 : limit)
+      });
 
       return cf.map(
         function(item) {
           return {
-            key  : decode(item.key).slice(n),
+            key  : decode(item.key).slice(prefix.length),
             value: item.value
           }
         },
-        storage.read({
-          start: encode(prefix.concat(from)),
-          end  : encode(prefix.concat(to)),
-          limit: (limit == null ? -1 : limit)
-        }));
+        chan.fromStream(stream, null, stream.destroy.bind(stream))
+      );
     };
 
     var exists = function(entity, attribute, value) {
@@ -152,10 +153,11 @@ module.exports = function(storage, schema) {
 
     var atomically = function(action) {
       return cc.go(function*() {
+        var batch;
         yield lock.acquire();
-        var batch = storage.batch();
+        batch = db.batch();
         yield cc.go(action, batch, yield nextTimestamp(batch));
-        yield batch.write();
+        yield cc.nbind(batch.write, batch)();
         lock.release();
       });
     };
@@ -193,7 +195,7 @@ module.exports = function(storage, schema) {
     };
 
     return {
-      close: storage.close,
+      close: cc.nbind(db.close, db),
 
       byEntity: function(entity) {
         return collated(scan(['eav', entity]), attrSchema);
