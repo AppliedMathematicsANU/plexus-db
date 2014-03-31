@@ -95,6 +95,35 @@ var putDatum = function(batch, entity, attr, val, old, attrSchema, time) {
 };
 
 
+var scanOptions = function(prefix, range, limit) {
+  var start;
+  var end;
+
+  if (range) {
+    if (range.hasOwnProperty('value')) {
+      start = prefix.concat(range.value, null);
+      end   = prefix.concat(range.value, undefined);
+    } else {
+      start = range.hasOwnProperty('from')
+        ? prefix.concat(range.from)
+        : prefix;
+      end = range.hasOwnProperty('to')
+        ? prefix.concat(range.to)
+        : prefix.concat(undefined);
+    }
+  } else {
+    start = prefix;
+    end   = prefix.concat(undefined);
+  }
+
+  return {
+    start: encode(start),
+    end  : encode(end),
+    limit: (limit == null ? -1 : limit)
+  };
+};
+
+
 module.exports = function(path, schema, options) {
   schema = schema || {};
 
@@ -103,11 +132,7 @@ module.exports = function(path, schema, options) {
     var lock = chan.createLock();
 
     var scan = function(prefix, range, limit) {
-       var stream = db.createReadStream({
-        start: encode(prefix.concat(range ? range.from : null)),
-        end  : encode(prefix.concat(range ? range.to : undefined)),
-        limit: (limit == null ? -1 : limit)
-      });
+      var stream = db.createReadStream(scanOptions(prefix, range, limit));
 
       return cf.map(
         function(item) {
@@ -124,10 +149,8 @@ module.exports = function(path, schema, options) {
       return cc.go(function*() {
         var result = false;
         yield chan.each(
-          function(item) {
-            if (encode(item.key[0]) == encode(value)) result = true;
-          },
-          scan(['eav', entity, attribute], { from: value }, 1));
+          function(item) { result = true; },
+          scan(['eav', entity, attribute, value]));
         return result;
       });
     };
@@ -209,6 +232,7 @@ module.exports = function(path, schema, options) {
       byAttribute: function(key, range) {
         return cc.go(function*() {
           var data;
+
           if (range) {
             if (attrSchema(key).indexed)
               data = cf.map(

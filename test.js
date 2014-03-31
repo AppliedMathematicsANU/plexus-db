@@ -97,6 +97,8 @@ cc.top(cc.go(function*() {
               yield db.byAttribute('height', { from: 0, to: 50 }));
   console.log('words starting with H in greetings',
               yield db.byAttribute('greeting', { from: 'H', to: 'H~' }));
+  console.log('occurrences of Hello in greetings',
+              yield db.byAttribute('greeting', { value: 'Hello' }));
   console.log();
 
   console.log('--- after adding olaf and delaney to grace\'s parents: ---');
