@@ -5,7 +5,7 @@
   "main": "./index.js",
   "dependencies": {
     "ceci-core": "~0.2.0",
-    "ceci-channels": "odf/ceci-channels",
+    "ceci-channels": "~0.1.0",
     "ceci-filters": "odf/ceci-filters",
     "bytewise": "~0.7.0",
     "bops": "~0.1.1",
