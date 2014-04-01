@@ -178,10 +178,13 @@ module.exports = function(path, schema, options) {
       return cc.go(function*() {
         var batch;
         yield lock.acquire();
-        batch = db.batch();
-        yield cc.go(action, batch, yield nextTimestamp(batch));
-        yield cc.nbind(batch.write, batch)();
-        lock.release();
+        try {
+          batch = db.batch();
+          yield cc.go(action, batch, yield nextTimestamp(batch));
+          yield cc.nbind(batch.write, batch)();
+        } finally {
+          lock.release();
+        }
       });
     };
 
