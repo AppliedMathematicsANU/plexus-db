@@ -39,15 +39,9 @@
 
 {
   "greeting": {
-    "delaney": [
-      "Hi there."
-    ],
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "delaney": "Hi there.",
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -59,15 +53,9 @@
 }
 {
   "weight": {
-    "delaney": [
-      2.5
-    ],
-    "grace": [
-      30
-    ],
-    "olaf": [
-      87.5
-    ]
+    "delaney": 2.5,
+    "grace": 30,
+    "olaf": 87.5
   }
 }
 {
@@ -147,19 +135,16 @@
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
 
-weights between 20 and 50: { grace: [ 30 ] }
+weights between 20 and 50: { grace: 30 }
 heights between 0 and 50: { delaney: 2.5, grace: 40 }
-words starting with H in greetings { olaf: [ 'Hello' ], delaney: [ 'Hi' ] }
-words not before Hello in greetings { olaf: [ 'Hello', 'I', 'Olaf', 'am' ],
-  delaney: [ 'Hi', 'there' ],
-  grace: [ 'Nice', 'meet', 'to', 'you' ] }
-occurrences of Hello in greetings { olaf: [ 'Hello' ] }
+words starting with H in greetings { olaf: 'Hello', delaney: 'Hi' }
+occurrences of Hello in greetings { olaf: 'Hello' }
 
 --- after adding olaf and delaney to grace's parents: ---
 {
@@ -208,15 +193,9 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 
 {
   "greeting": {
-    "delaney": [
-      "Hi there."
-    ],
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "delaney": "Hi there.",
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -228,15 +207,9 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 }
 {
   "weight": {
-    "delaney": [
-      2.5
-    ],
-    "grace": [
-      30
-    ],
-    "olaf": [
-      87.5
-    ]
+    "delaney": 2.5,
+    "grace": 30,
+    "olaf": 87.5
   }
 }
 {
@@ -320,10 +293,10 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-4]: "1396249094877"
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-4]: "1396324774948"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 ["vae","delaney","parents","grace"]: "-4"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
@@ -375,15 +348,9 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 
 {
   "greeting": {
-    "delaney": [
-      "Hi there."
-    ],
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "delaney": "Hi there.",
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -395,15 +362,9 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 }
 {
   "weight": {
-    "delaney": [
-      2.5
-    ],
-    "grace": [
-      30
-    ],
-    "olaf": [
-      86
-    ]
+    "delaney": 2.5,
+    "grace": 30,
+    "olaf": 86
   }
 }
 {
@@ -488,11 +449,11 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-5]: "1396249094940"
-["seq",-4]: "1396249094877"
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-5]: "1396324775019"
+["seq",-4]: "1396324774948"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 ["vae","delaney","parents","grace"]: "-4"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
@@ -531,12 +492,8 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 
 {
   "greeting": {
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -547,12 +504,8 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 }
 {
   "weight": {
-    "grace": [
-      30
-    ],
-    "olaf": [
-      86
-    ]
+    "grace": 30,
+    "olaf": 86
   }
 }
 {
@@ -622,12 +575,12 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-6]: "1396249095014"
-["seq",-5]: "1396249094940"
-["seq",-4]: "1396249094877"
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-6]: "1396324775099"
+["seq",-5]: "1396324775019"
+["seq",-4]: "1396324774948"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 ["vae","olaf","parents","grace"]: "-3"
 
 --- after deleting weights: ---
@@ -636,7 +589,6 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
     "age": 50,
     "greeting": "Hello, I am Olaf!",
     "height": 187,
-    "weight": 86,
     "references": {
       "parents": [
         "grace"
@@ -657,19 +609,14 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
     "parents": [
       "olaf"
     ],
-    "weight": 30,
     "references": {}
   }
 }
 
 {
   "greeting": {
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -679,14 +626,7 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
   }
 }
 {
-  "weight": {
-    "grace": [
-      30
-    ],
-    "olaf": [
-      86
-    ]
-  }
+  "weight": {}
 }
 {
   "height": {
@@ -709,8 +649,6 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["aev","height","grace",40]: "-3"
 ["aev","height","olaf",187]: "-1"
 ["aev","parents","grace","olaf"]: "-3"
-["aev","weight","grace",30]: "-3"
-["aev","weight","olaf",86]: "-5"
 ["ave","greeting","!","grace"]: "-3"
 ["ave","greeting","!","olaf"]: "-1"
 ["ave","greeting",",","olaf"]: "-1"
@@ -722,17 +660,15 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["ave","greeting","meet","grace"]: "-3"
 ["ave","greeting","to","grace"]: "-3"
 ["ave","greeting","you","grace"]: "-3"
-["ave","weight",30,"grace"]: "-3"
-["ave","weight",86,"olaf"]: "-5"
 ["eav","grace","age",0]: "-3"
 ["eav","grace","greeting","Nice to meet you!"]: "-3"
 ["eav","grace","height",40]: "-3"
 ["eav","grace","parents","olaf"]: "-3"
-["eav","grace","weight",30]: "-3"
 ["eav","olaf","age",50]: "-1"
 ["eav","olaf","greeting","Hello, I am Olaf!"]: "-1"
 ["eav","olaf","height",187]: "-1"
-["eav","olaf","weight",86]: "-5"
+["log",-7,"grace","weight","del",30]: "."
+["log",-7,"olaf","weight","del",86]: "."
 ["log",-6,"delaney","age","del",5]: "."
 ["log",-6,"delaney","greeting","del","Hi there."]: "."
 ["log",-6,"delaney","height","del",2.5]: "."
@@ -755,13 +691,13 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-7]: "1396249095091"
-["seq",-6]: "1396249095014"
-["seq",-5]: "1396249094940"
-["seq",-4]: "1396249094877"
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-7]: "1396324775164"
+["seq",-6]: "1396324775099"
+["seq",-5]: "1396324775019"
+["seq",-4]: "1396324774948"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 ["vae","olaf","parents","grace"]: "-3"
 
 --- after unlisting olaf and delaney as grace's parents: ---
@@ -770,7 +706,6 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
     "age": 50,
     "greeting": "Hello, I am Olaf!",
     "height": 187,
-    "weight": 86,
     "references": {}
   }
 }
@@ -784,19 +719,14 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
     "age": 0,
     "greeting": "Nice to meet you!",
     "height": 40,
-    "weight": 30,
     "references": {}
   }
 }
 
 {
   "greeting": {
-    "grace": [
-      "Nice to meet you!"
-    ],
-    "olaf": [
-      "Hello, I am Olaf!"
-    ]
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
   }
 }
 {
@@ -806,14 +736,7 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
   }
 }
 {
-  "weight": {
-    "grace": [
-      30
-    ],
-    "olaf": [
-      86
-    ]
-  }
+  "weight": {}
 }
 {
   "height": {
@@ -831,8 +754,6 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["aev","greeting","olaf","Hello, I am Olaf!"]: "-1"
 ["aev","height","grace",40]: "-3"
 ["aev","height","olaf",187]: "-1"
-["aev","weight","grace",30]: "-3"
-["aev","weight","olaf",86]: "-5"
 ["ave","greeting","!","grace"]: "-3"
 ["ave","greeting","!","olaf"]: "-1"
 ["ave","greeting",",","olaf"]: "-1"
@@ -844,17 +765,15 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["ave","greeting","meet","grace"]: "-3"
 ["ave","greeting","to","grace"]: "-3"
 ["ave","greeting","you","grace"]: "-3"
-["ave","weight",30,"grace"]: "-3"
-["ave","weight",86,"olaf"]: "-5"
 ["eav","grace","age",0]: "-3"
 ["eav","grace","greeting","Nice to meet you!"]: "-3"
 ["eav","grace","height",40]: "-3"
-["eav","grace","weight",30]: "-3"
 ["eav","olaf","age",50]: "-1"
 ["eav","olaf","greeting","Hello, I am Olaf!"]: "-1"
 ["eav","olaf","height",187]: "-1"
-["eav","olaf","weight",86]: "-5"
 ["log",-8,"grace","parents","del","olaf"]: "."
+["log",-7,"grace","weight","del",30]: "."
+["log",-7,"olaf","weight","del",86]: "."
 ["log",-6,"delaney","age","del",5]: "."
 ["log",-6,"delaney","greeting","del","Hi there."]: "."
 ["log",-6,"delaney","height","del",2.5]: "."
@@ -877,12 +796,12 @@ occurrences of Hello in greetings { olaf: [ 'Hello' ] }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-8]: "1396249095148"
-["seq",-7]: "1396249095091"
-["seq",-6]: "1396249095014"
-["seq",-5]: "1396249094940"
-["seq",-4]: "1396249094877"
-["seq",-3]: "1396249094779"
-["seq",-2]: "1396249094767"
-["seq",-1]: "1396249094749"
+["seq",-8]: "1396324775202"
+["seq",-7]: "1396324775164"
+["seq",-6]: "1396324775099"
+["seq",-5]: "1396324775019"
+["seq",-4]: "1396324774948"
+["seq",-3]: "1396324774859"
+["seq",-2]: "1396324774846"
+["seq",-1]: "1396324774828"
 
