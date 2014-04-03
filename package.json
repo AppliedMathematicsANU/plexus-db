@@ -1,6 +1,6 @@
 {
   "name": "plexus-db",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "./index.js",
   "dependencies": {
@@ -12,5 +12,11 @@
     "levelup": "~0.18.2",
     "leveldown": "~0.10.2",
     "memdown": "~0.7.0"
+  },
+  "devDependencies": {
+    "regenerator": "~0.3.9"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/regenerator es6.js >index.js"
   }
 }
