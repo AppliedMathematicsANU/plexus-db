@@ -126,7 +126,10 @@ cc.top(cc.go(function*() {
   yield chan.each(function(entry) { log.push(entry); },
                   yield db.reverseLog());
   log.reverse();
-  console.log(log);
 
   db.close();
+
+  db = yield engine('', schema, { db: memdown });
+  yield db.replay(log);
+  yield show(db, entities, attributes);
 }));

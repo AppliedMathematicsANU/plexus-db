@@ -135,9 +135,9 @@
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
 
@@ -293,10 +293,10 @@ occurrences of Hello in greetings { olaf: 'Hello' }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-4]: "1396939286459"
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-4]: "1396941732914"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 ["vae","delaney","parents","grace"]: "-4"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
@@ -449,11 +449,11 @@ occurrences of Hello in greetings { olaf: 'Hello' }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-5]: "1396939286524"
-["seq",-4]: "1396939286459"
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-5]: "1396941732981"
+["seq",-4]: "1396941732914"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 ["vae","delaney","parents","grace"]: "-4"
 ["vae","olaf","parents","delaney"]: "-2"
 ["vae","olaf","parents","grace"]: "-3"
@@ -575,12 +575,12 @@ occurrences of Hello in greetings { olaf: 'Hello' }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-6]: "1396939286597"
-["seq",-5]: "1396939286524"
-["seq",-4]: "1396939286459"
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-6]: "1396941733054"
+["seq",-5]: "1396941732981"
+["seq",-4]: "1396941732914"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 ["vae","olaf","parents","grace"]: "-3"
 
 --- after deleting weights: ---
@@ -691,13 +691,13 @@ occurrences of Hello in greetings { olaf: 'Hello' }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-7]: "1396939286685"
-["seq",-6]: "1396939286597"
-["seq",-5]: "1396939286524"
-["seq",-4]: "1396939286459"
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-7]: "1396941733146"
+["seq",-6]: "1396941733054"
+["seq",-5]: "1396941732981"
+["seq",-4]: "1396941732914"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 ["vae","olaf","parents","grace"]: "-3"
 
 --- after unlisting olaf and delaney as grace's parents: ---
@@ -796,137 +796,116 @@ occurrences of Hello in greetings { olaf: 'Hello' }
 ["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
 ["log",-1,"olaf","height","add",187]: "."
 ["log",-1,"olaf","weight","add",87.5]: "."
-["seq",-8]: "1396939286736"
-["seq",-7]: "1396939286685"
-["seq",-6]: "1396939286597"
-["seq",-5]: "1396939286524"
-["seq",-4]: "1396939286459"
-["seq",-3]: "1396939286366"
-["seq",-2]: "1396939286354"
-["seq",-1]: "1396939286335"
+["seq",-8]: "1396941733200"
+["seq",-7]: "1396941733146"
+["seq",-6]: "1396941733054"
+["seq",-5]: "1396941732981"
+["seq",-4]: "1396941732914"
+["seq",-3]: "1396941732824"
+["seq",-2]: "1396941732813"
+["seq",-1]: "1396941732793"
 
-[ { timestamp: '1396939286335',
-    entity: 'olaf',
-    attribute: 'weight',
-    operation: 'add',
-    values: [ 87.5 ] },
-  { timestamp: '1396939286335',
-    entity: 'olaf',
-    attribute: 'height',
-    operation: 'add',
-    values: [ 187 ] },
-  { timestamp: '1396939286335',
-    entity: 'olaf',
-    attribute: 'greeting',
-    operation: 'add',
-    values: [ 'Hello, I am Olaf!' ] },
-  { timestamp: '1396939286335',
-    entity: 'olaf',
-    attribute: 'age',
-    operation: 'add',
-    values: [ 50 ] },
-  { timestamp: '1396939286354',
-    entity: 'delaney',
-    attribute: 'weight',
-    operation: 'add',
-    values: [ 2.5 ] },
-  { timestamp: '1396939286354',
-    entity: 'delaney',
-    attribute: 'parents',
-    operation: 'add',
-    values: [ 'olaf' ] },
-  { timestamp: '1396939286354',
-    entity: 'delaney',
-    attribute: 'height',
-    operation: 'add',
-    values: [ 2.5 ] },
-  { timestamp: '1396939286354',
-    entity: 'delaney',
-    attribute: 'greeting',
-    operation: 'add',
-    values: [ 'Hi there.' ] },
-  { timestamp: '1396939286354',
-    entity: 'delaney',
-    attribute: 'age',
-    operation: 'add',
-    values: [ 5 ] },
-  { timestamp: '1396939286366',
-    entity: 'grace',
-    attribute: 'weight',
-    operation: 'add',
-    values: [ 30 ] },
-  { timestamp: '1396939286366',
-    entity: 'grace',
-    attribute: 'parents',
-    operation: 'add',
-    values: [ 'olaf' ] },
-  { timestamp: '1396939286366',
-    entity: 'grace',
-    attribute: 'height',
-    operation: 'add',
-    values: [ 40 ] },
-  { timestamp: '1396939286366',
-    entity: 'grace',
-    attribute: 'greeting',
-    operation: 'add',
-    values: [ 'Nice to meet you!' ] },
-  { timestamp: '1396939286366',
-    entity: 'grace',
-    attribute: 'age',
-    operation: 'add',
-    values: [ 0 ] },
-  { timestamp: '1396939286459',
-    entity: 'grace',
-    attribute: 'parents',
-    operation: 'add',
-    values: [ 'delaney' ] },
-  { timestamp: '1396939286524',
-    entity: 'olaf',
-    attribute: 'weight',
-    operation: 'chg',
-    values: [ 87.5, 86 ] },
-  { timestamp: '1396939286597',
-    entity: 'grace',
-    attribute: 'parents',
-    operation: 'del',
-    values: [ 'delaney' ] },
-  { timestamp: '1396939286597',
-    entity: 'delaney',
-    attribute: 'weight',
-    operation: 'del',
-    values: [ 2.5 ] },
-  { timestamp: '1396939286597',
-    entity: 'delaney',
-    attribute: 'parents',
-    operation: 'del',
-    values: [ 'olaf' ] },
-  { timestamp: '1396939286597',
-    entity: 'delaney',
-    attribute: 'height',
-    operation: 'del',
-    values: [ 2.5 ] },
-  { timestamp: '1396939286597',
-    entity: 'delaney',
-    attribute: 'greeting',
-    operation: 'del',
-    values: [ 'Hi there.' ] },
-  { timestamp: '1396939286597',
-    entity: 'delaney',
-    attribute: 'age',
-    operation: 'del',
-    values: [ 5 ] },
-  { timestamp: '1396939286685',
-    entity: 'olaf',
-    attribute: 'weight',
-    operation: 'del',
-    values: [ 86 ] },
-  { timestamp: '1396939286685',
-    entity: 'grace',
-    attribute: 'weight',
-    operation: 'del',
-    values: [ 30 ] },
-  { timestamp: '1396939286736',
-    entity: 'grace',
-    attribute: 'parents',
-    operation: 'del',
-    values: [ 'olaf' ] } ]
+{
+  "olaf": {
+    "age": 50,
+    "greeting": "Hello, I am Olaf!",
+    "height": 187,
+    "references": {}
+  }
+}
+{
+  "delaney": {
+    "references": {}
+  }
+}
+{
+  "grace": {
+    "age": 0,
+    "greeting": "Nice to meet you!",
+    "height": 40,
+    "references": {}
+  }
+}
+
+{
+  "greeting": {
+    "grace": "Nice to meet you!",
+    "olaf": "Hello, I am Olaf!"
+  }
+}
+{
+  "age": {
+    "grace": 0,
+    "olaf": 50
+  }
+}
+{
+  "weight": {}
+}
+{
+  "height": {
+    "grace": 40,
+    "olaf": 187
+  }
+}
+{
+  "parents": {}
+}
+
+["aev","age","grace",0]: "-3"
+["aev","age","olaf",50]: "-1"
+["aev","greeting","grace","Nice to meet you!"]: "-3"
+["aev","greeting","olaf","Hello, I am Olaf!"]: "-1"
+["aev","height","grace",40]: "-3"
+["aev","height","olaf",187]: "-1"
+["ave","greeting","!","grace"]: "-3"
+["ave","greeting","!","olaf"]: "-1"
+["ave","greeting",",","olaf"]: "-1"
+["ave","greeting","Hello","olaf"]: "-1"
+["ave","greeting","I","olaf"]: "-1"
+["ave","greeting","Nice","grace"]: "-3"
+["ave","greeting","Olaf","olaf"]: "-1"
+["ave","greeting","am","olaf"]: "-1"
+["ave","greeting","meet","grace"]: "-3"
+["ave","greeting","to","grace"]: "-3"
+["ave","greeting","you","grace"]: "-3"
+["eav","grace","age",0]: "-3"
+["eav","grace","greeting","Nice to meet you!"]: "-3"
+["eav","grace","height",40]: "-3"
+["eav","olaf","age",50]: "-1"
+["eav","olaf","greeting","Hello, I am Olaf!"]: "-1"
+["eav","olaf","height",187]: "-1"
+["log",-8,"grace","parents","del","olaf"]: "."
+["log",-7,"grace","weight","del",30]: "."
+["log",-7,"olaf","weight","del",86]: "."
+["log",-6,"delaney","age","del",5]: "."
+["log",-6,"delaney","greeting","del","Hi there."]: "."
+["log",-6,"delaney","height","del",2.5]: "."
+["log",-6,"delaney","parents","del","olaf"]: "."
+["log",-6,"delaney","weight","del",2.5]: "."
+["log",-6,"grace","parents","del","delaney"]: "."
+["log",-5,"olaf","weight","chg",87.5,86]: "."
+["log",-4,"grace","parents","add","delaney"]: "."
+["log",-3,"grace","age","add",0]: "."
+["log",-3,"grace","greeting","add","Nice to meet you!"]: "."
+["log",-3,"grace","height","add",40]: "."
+["log",-3,"grace","parents","add","olaf"]: "."
+["log",-3,"grace","weight","add",30]: "."
+["log",-2,"delaney","age","add",5]: "."
+["log",-2,"delaney","greeting","add","Hi there."]: "."
+["log",-2,"delaney","height","add",2.5]: "."
+["log",-2,"delaney","parents","add","olaf"]: "."
+["log",-2,"delaney","weight","add",2.5]: "."
+["log",-1,"olaf","age","add",50]: "."
+["log",-1,"olaf","greeting","add","Hello, I am Olaf!"]: "."
+["log",-1,"olaf","height","add",187]: "."
+["log",-1,"olaf","weight","add",87.5]: "."
+["seq",-8]: "1396941733326"
+["seq",-7]: "1396941733321"
+["seq",-6]: "1396941733310"
+["seq",-5]: "1396941733304"
+["seq",-4]: "1396941733301"
+["seq",-3]: "1396941733291"
+["seq",-2]: "1396941733281"
+["seq",-1]: "1396941733268"
+

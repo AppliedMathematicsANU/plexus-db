@@ -220,6 +220,27 @@ module.exports = function(path, schema, options) {
       });
     };
 
+    var replay = function(group) {
+      if (group.length == 0)
+        return;
+
+      return atomically(function*(batch, time) {
+        var i, e;
+        for (i in group) {
+          e = group[i];
+          if (e.operation == 'del')
+            yield removeData(batch,
+                             e.entity, e.attribute, e.values[0], time);
+          else if (e.operation == 'add')
+            yield putData(batch,
+                          e.entity, e.attribute, e.values[0], time);
+          else if (e.operation == 'chg')
+            yield putData(batch,
+                          e.entity, e.attribute, e.values[1], time);
+        }
+      });
+    };
+
     return {
       close: cc.nbind(db.close, db),
 
@@ -324,6 +345,24 @@ module.exports = function(path, schema, options) {
               };
             },
             scan(['log']));
+        });
+      },
+
+      replay: function(log) {
+        return cc.go(function*() {
+          var lastTime = 0;
+          var i, e, group = [];
+
+          for (i in log) {
+            e = log[i];
+            if (e.timestamp > lastTime) {
+              yield replay(group);
+              group = [];
+              lastTime = e.timestamp;
+            }
+            group.push(e);
+          };
+          yield replay(group);
         });
       },
 
