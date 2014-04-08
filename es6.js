@@ -305,7 +305,7 @@ module.exports = function(path, schema, options) {
         }.bind(this));
       },
 
-      log: function() {
+      reverseLog: function() {
         return cc.go(function*() {
           var timestamp = {};
           yield chan.each(function(item) {

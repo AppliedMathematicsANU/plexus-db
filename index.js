@@ -574,7 +574,7 @@ module.exports = function(path, schema, options) {
             }).bind(this));
           },
 
-          log: function() {
+          reverseLog: function() {
             return cc.go(wrapGenerator.mark(function() {
               var timestamp;
 

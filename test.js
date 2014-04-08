@@ -123,7 +123,8 @@ cc.top(cc.go(function*() {
   yield show(db, entities, attributes);
 
   log = [];
-  yield chan.each(function(entry) { log.push(entry); }, yield db.log());
+  yield chan.each(function(entry) { log.push(entry); },
+                  yield db.reverseLog());
   log.reverse();
   console.log(log);
 
