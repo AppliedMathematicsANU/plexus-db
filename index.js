@@ -574,6 +574,46 @@ module.exports = function(path, schema, options) {
             }).bind(this));
           },
 
+          log: function() {
+            return cc.go(wrapGenerator.mark(function() {
+              var timestamp;
+
+              return wrapGenerator(function($ctx14) {
+                while (1) switch ($ctx14.next) {
+                case 0:
+                  timestamp = {};
+                  $ctx14.next = 3;
+
+                  return chan.each(function(item) {
+                    timestamp[item.key] = item.value;
+                  }, scan(['seq']))
+                case 3:
+                  console.log(timestamp);
+
+                  $ctx14.rval = cf.map(
+                    function(item) {
+                      var data = item.key;
+                      return {
+                        timestamp: timestamp[data[0]],
+                        entity   : data[1],
+                        attribute: data[2],
+                        operation: data[3],
+                        values   : data.slice(4)
+                      };
+                    },
+                    scan(['log']));
+
+                  delete $ctx14.thrown;
+                  $ctx14.next = 8;
+                  break;
+                case 8:
+                case "end":
+                  return $ctx14.stop();
+                }
+              }, this);
+            }));
+          },
+
           raw: function() {
             return scan([]);
           }

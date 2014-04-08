@@ -305,6 +305,29 @@ module.exports = function(path, schema, options) {
         }.bind(this));
       },
 
+      log: function() {
+        return cc.go(function*() {
+          var timestamp = {};
+          yield chan.each(function(item) {
+            timestamp[item.key] = item.value;
+          }, scan(['seq']));
+
+          console.log(timestamp);
+          return cf.map(
+            function(item) {
+              var data = item.key;
+              return {
+                timestamp: timestamp[data[0]],
+                entity   : data[1],
+                attribute: data[2],
+                operation: data[3],
+                values   : data.slice(4)
+              };
+            },
+            scan(['log']));
+        });
+      },
+
       raw: function() {
         return scan([]);
       }

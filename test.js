@@ -121,5 +121,7 @@ cc.top(cc.go(function*() {
   yield db.unlist('grace', 'parents', ['olaf', 'delaney']);
   yield show(db, entities, attributes);
 
+  yield chan.each(console.log, yield db.log());
+
   db.close();
 }));
