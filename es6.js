@@ -312,7 +312,6 @@ module.exports = function(path, schema, options) {
             timestamp[item.key] = item.value;
           }, scan(['seq']));
 
-          console.log(timestamp);
           return cf.map(
             function(item) {
               var data = item.key;

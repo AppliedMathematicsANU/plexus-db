@@ -66,6 +66,7 @@ cc.top(cc.go(function*() {
   var db = yield engine('', schema, { db: memdown });
   var entities = ['olaf', 'delaney', 'grace'];
   var attributes = ['greeting', 'age', 'weight', 'height', 'parents'];
+  var log;
 
   yield cc.join([
     db.updateEntity('olaf', {
@@ -121,7 +122,10 @@ cc.top(cc.go(function*() {
   yield db.unlist('grace', 'parents', ['olaf', 'delaney']);
   yield show(db, entities, attributes);
 
-  yield chan.each(console.log, yield db.log());
+  log = [];
+  yield chan.each(function(entry) { log.push(entry); }, yield db.log());
+  log.reverse();
+  console.log(log);
 
   db.close();
 }));

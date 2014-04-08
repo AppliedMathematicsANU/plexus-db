@@ -588,8 +588,6 @@ module.exports = function(path, schema, options) {
                     timestamp[item.key] = item.value;
                   }, scan(['seq']))
                 case 3:
-                  console.log(timestamp);
-
                   $ctx14.rval = cf.map(
                     function(item) {
                       var data = item.key;
@@ -604,9 +602,9 @@ module.exports = function(path, schema, options) {
                     scan(['log']));
 
                   delete $ctx14.thrown;
-                  $ctx14.next = 8;
+                  $ctx14.next = 7;
                   break;
-                case 8:
+                case 7:
                 case "end":
                   return $ctx14.stop();
                 }
