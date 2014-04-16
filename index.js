@@ -1,5 +1,7 @@
 'use strict';
 
+var crypto = require('crypto');
+
 var levelup  = require('levelup');
 var bops     = require('bops');
 var bytewise = require('bytewise');
@@ -19,47 +21,19 @@ var decode = function(code) {
 };
 
 
+var sha1Hash = function(data) {
+  return crypto.createHash('sha1')
+    .update('blob ' + data.length + '\0')
+    .update(data)
+    .digest('hex');
+};
+
+
 var indexKeys = function(value, indexer) {
   if (typeof indexer == 'function')
     return indexer(value);
   else
     return [value];
-};
-
-
-var collated = function(input, getSchema) {
-  return cc.go(wrapGenerator.mark(function() {
-    var result;
-
-    return wrapGenerator(function($ctx0) {
-      while (1) switch ($ctx0.next) {
-      case 0:
-        result = {};
-        $ctx0.next = 3;
-
-        return chan.each(
-          function(item) {
-            var key = item.key[0];
-            var val = item.key[1];
-            if (!getSchema(key).multiple)
-              result[key] = val;
-            else if (result[key])
-              result[key].push(val);
-            else
-              result[key] = [val];
-          },
-          input)
-      case 3:
-        $ctx0.rval = result;
-        delete $ctx0.thrown;
-        $ctx0.next = 7;
-        break;
-      case 7:
-      case "end":
-        return $ctx0.stop();
-      }
-    }, this);
-  }));
 };
 
 
@@ -142,15 +116,15 @@ module.exports = function(path, schema, options) {
   schema = schema || {};
 
   return cc.go(wrapGenerator.mark(function() {
-    var db, lock, scan, exists, values, nextTimestamp, atomically, attrSchema, removeData, putData, replay;
+    var db, lock, scan, collated, exists, values, nextTimestamp, atomically, attrSchema, removeData, putData, replay;
 
-    return wrapGenerator(function($ctx1) {
-      while (1) switch ($ctx1.next) {
+    return wrapGenerator(function($ctx0) {
+      while (1) switch ($ctx0.next) {
       case 0:
-        $ctx1.next = 2;
+        $ctx0.next = 2;
         return cc.nbind(levelup)(path, options);
       case 2:
-        db = $ctx1.sent;
+        db = $ctx0.sent;
         lock = chan.createLock();
 
         scan = function(prefix, range, limit) {
@@ -167,45 +141,78 @@ module.exports = function(path, schema, options) {
           );
         };
 
-        exists = function(entity, attribute, value) {
+        collated = function(input, getSchema) {
           return cc.go(wrapGenerator.mark(function() {
             var result;
 
-            return wrapGenerator(function($ctx2) {
-              while (1) switch ($ctx2.next) {
+            return wrapGenerator(function($ctx1) {
+              while (1) switch ($ctx1.next) {
               case 0:
-                result = false;
-                $ctx2.next = 3;
+                result = {};
+                $ctx1.next = 3;
 
                 return chan.each(
-                  function(item) { result = true; },
-                  scan(['eav', entity, attribute, value]))
+                  function(item) {
+                    return cc.go(wrapGenerator.mark(function() {
+                      var key, val;
+
+                      return wrapGenerator(function($ctx2) {
+                        while (1) switch ($ctx2.next) {
+                        case 0:
+                          key = item.key[0];
+                          val = item.key[1];
+
+                          if (!getSchema(key).indirect) {
+                            $ctx2.next = 7;
+                            break;
+                          }
+
+                          $ctx2.next = 5;
+                          return cc.nbind(db.get, db)(encode(['dat', val]));
+                        case 5:
+                          $ctx2.t0 = $ctx2.sent;
+                          val = JSON.parse($ctx2.t0);
+                        case 7:
+                          if (!getSchema(key).multiple)
+                            result[key] = val;
+                          else if (result[key])
+                            result[key].push(val);
+                          else
+                            result[key] = [val];
+                        case 8:
+                        case "end":
+                          return $ctx2.stop();
+                        }
+                      }, this);
+                    }));
+                  },
+                  input)
               case 3:
-                $ctx2.rval = result;
-                delete $ctx2.thrown;
-                $ctx2.next = 7;
+                $ctx1.rval = result;
+                delete $ctx1.thrown;
+                $ctx1.next = 7;
                 break;
               case 7:
               case "end":
-                return $ctx2.stop();
+                return $ctx1.stop();
               }
             }, this);
           }));
         };
 
-        values = function(entity, attribute) {
+        exists = function(entity, attribute, value) {
           return cc.go(wrapGenerator.mark(function() {
             var result;
 
             return wrapGenerator(function($ctx3) {
               while (1) switch ($ctx3.next) {
               case 0:
-                result = [];
+                result = false;
                 $ctx3.next = 3;
 
                 return chan.each(
-                  function(item) { result.push(item.key[0]); },
-                  scan(['eav', entity, attribute]))
+                  function(item) { result = true; },
+                  scan(['eav', entity, attribute, value]))
               case 3:
                 $ctx3.rval = result;
                 delete $ctx3.thrown;
@@ -219,26 +226,52 @@ module.exports = function(path, schema, options) {
           }));
         };
 
-        nextTimestamp = function(batch) {
+        values = function(entity, attribute) {
           return cc.go(wrapGenerator.mark(function() {
-            var t, next;
+            var result;
 
             return wrapGenerator(function($ctx4) {
               while (1) switch ($ctx4.next) {
               case 0:
-                $ctx4.next = 2;
+                result = [];
+                $ctx4.next = 3;
+
+                return chan.each(
+                  function(item) { result.push(item.key[0]); },
+                  scan(['eav', entity, attribute]))
+              case 3:
+                $ctx4.rval = result;
+                delete $ctx4.thrown;
+                $ctx4.next = 7;
+                break;
+              case 7:
+              case "end":
+                return $ctx4.stop();
+              }
+            }, this);
+          }));
+        };
+
+        nextTimestamp = function(batch) {
+          return cc.go(wrapGenerator.mark(function() {
+            var t, next;
+
+            return wrapGenerator(function($ctx5) {
+              while (1) switch ($ctx5.next) {
+              case 0:
+                $ctx5.next = 2;
                 return chan.pull(scan(['seq'], null, 1));
               case 2:
-                t = $ctx4.sent;
+                t = $ctx5.sent;
                 next = (t === undefined) ? -1 : t.key[0] - 1;
                 batch.put(encode(['seq', next]), Date.now());
-                $ctx4.rval = next;
-                delete $ctx4.thrown;
-                $ctx4.next = 9;
+                $ctx5.rval = next;
+                delete $ctx5.thrown;
+                $ctx5.next = 9;
                 break;
               case 9:
               case "end":
-                return $ctx4.stop();
+                return $ctx5.stop();
               }
             }, this);
           }));
@@ -248,32 +281,32 @@ module.exports = function(path, schema, options) {
           return cc.go(wrapGenerator.mark(function() {
             var batch;
 
-            return wrapGenerator(function($ctx5) {
-              while (1) switch ($ctx5.next) {
+            return wrapGenerator(function($ctx6) {
+              while (1) switch ($ctx6.next) {
               case 0:
-                $ctx5.next = 2;
+                $ctx6.next = 2;
                 return lock.acquire();
               case 2:
-                $ctx5.t0 = 16;
-                $ctx5.pushTry(null, 12, "t0");
+                $ctx6.t1 = 16;
+                $ctx6.pushTry(null, 12, "t1");
                 batch = db.batch();
-                $ctx5.next = 7;
+                $ctx6.next = 7;
                 return nextTimestamp(batch);
               case 7:
-                $ctx5.t1 = $ctx5.sent;
-                $ctx5.next = 10;
-                return cc.go(action, batch, $ctx5.t1);
+                $ctx6.t2 = $ctx6.sent;
+                $ctx6.next = 10;
+                return cc.go(action, batch, $ctx6.t2);
               case 10:
-                $ctx5.next = 12;
+                $ctx6.next = 12;
                 return cc.nbind(batch.write, batch)();
               case 12:
-                $ctx5.popFinally(12);
+                $ctx6.popFinally(12);
                 lock.release();
-                $ctx5.next = $ctx5.t0;
+                $ctx6.next = $ctx6.t1;
                 break;
               case 16:
               case "end":
-                return $ctx5.stop();
+                return $ctx6.stop();
               }
             }, this);
           }));
@@ -288,44 +321,6 @@ module.exports = function(path, schema, options) {
           return cc.go(wrapGenerator.mark(function() {
             var a, i, v;
 
-            return wrapGenerator(function($ctx6) {
-              while (1) switch ($ctx6.next) {
-              case 0:
-                a = (schema.multiple && Array.isArray(val)) ? val : [val];
-                $ctx6.t2 = $ctx6.keys(a);
-              case 2:
-                if (!$ctx6.t2.length) {
-                  $ctx6.next = 11;
-                  break;
-                }
-
-                i = $ctx6.t2.pop();
-                v = a[i];
-                $ctx6.next = 7;
-                return exists(entity, attr, v);
-              case 7:
-                if (!$ctx6.sent) {
-                  $ctx6.next = 9;
-                  break;
-                }
-
-                removeDatum(batch, entity, attr, v, schema, time, true);
-              case 9:
-                $ctx6.next = 2;
-                break;
-              case 11:
-              case "end":
-                return $ctx6.stop();
-              }
-            }, this);
-          }));
-        };
-
-        putData = function(batch, entity, attr, val, time) {
-          var schema = attrSchema(attr);
-          return cc.go(wrapGenerator.mark(function() {
-            var a, i, v, old;
-
             return wrapGenerator(function($ctx7) {
               while (1) switch ($ctx7.next) {
               case 0:
@@ -333,7 +328,7 @@ module.exports = function(path, schema, options) {
                 $ctx7.t3 = $ctx7.keys(a);
               case 2:
                 if (!$ctx7.t3.length) {
-                  $ctx7.next = 19;
+                  $ctx7.next = 11;
                   break;
                 }
 
@@ -342,33 +337,78 @@ module.exports = function(path, schema, options) {
                 $ctx7.next = 7;
                 return exists(entity, attr, v);
               case 7:
-                if (!!$ctx7.sent) {
-                  $ctx7.next = 17;
+                if (!$ctx7.sent) {
+                  $ctx7.next = 9;
+                  break;
+                }
+
+                removeDatum(batch, entity, attr, v, schema, time, true);
+              case 9:
+                $ctx7.next = 2;
+                break;
+              case 11:
+              case "end":
+                return $ctx7.stop();
+              }
+            }, this);
+          }));
+        };
+
+        putData = function(batch, entity, attr, val, time) {
+          var schema = attrSchema(attr);
+          return cc.go(wrapGenerator.mark(function() {
+            var a, i, v, old, text;
+
+            return wrapGenerator(function($ctx8) {
+              while (1) switch ($ctx8.next) {
+              case 0:
+                a = (schema.multiple && Array.isArray(val)) ? val : [val];
+                $ctx8.t4 = $ctx8.keys(a);
+              case 2:
+                if (!$ctx8.t4.length) {
+                  $ctx8.next = 20;
+                  break;
+                }
+
+                i = $ctx8.t4.pop();
+                v = a[i];
+
+                if (schema.indirect) {
+                  text = JSON.stringify(v);
+                  v = sha1Hash(text);
+                  batch.put(encode(['dat', v]), text);
+                }
+
+                $ctx8.next = 8;
+                return exists(entity, attr, v);
+              case 8:
+                if (!!$ctx8.sent) {
+                  $ctx8.next = 18;
                   break;
                 }
 
                 if (!schema.multiple) {
-                  $ctx7.next = 12;
+                  $ctx8.next = 13;
                   break;
                 }
 
-                $ctx7.t4 = [];
-                $ctx7.next = 15;
+                $ctx8.t5 = [];
+                $ctx8.next = 16;
                 break;
-              case 12:
-                $ctx7.next = 14;
+              case 13:
+                $ctx8.next = 15;
                 return values(entity, attr);
-              case 14:
-                $ctx7.t4 = $ctx7.sent;
               case 15:
-                old = $ctx7.t4;
+                $ctx8.t5 = $ctx8.sent;
+              case 16:
+                old = $ctx8.t5;
                 putDatum(batch, entity, attr, v, old[0], schema, time);
-              case 17:
-                $ctx7.next = 2;
+              case 18:
+                $ctx8.next = 2;
                 break;
-              case 19:
+              case 20:
               case "end":
-                return $ctx7.stop();
+                return $ctx8.stop();
               }
             }, this);
           }));
@@ -381,66 +421,66 @@ module.exports = function(path, schema, options) {
           return atomically(wrapGenerator.mark(function(batch, time) {
             var i, e;
 
-            return wrapGenerator(function($ctx8) {
-              while (1) switch ($ctx8.next) {
+            return wrapGenerator(function($ctx9) {
+              while (1) switch ($ctx9.next) {
               case 0:
-                $ctx8.t5 = $ctx8.keys(group);
+                $ctx9.t6 = $ctx9.keys(group);
               case 1:
-                if (!$ctx8.t5.length) {
-                  $ctx8.next = 19;
+                if (!$ctx9.t6.length) {
+                  $ctx9.next = 19;
                   break;
                 }
 
-                i = $ctx8.t5.pop();
+                i = $ctx9.t6.pop();
                 e = group[i];
 
                 if (!(e.operation == 'del')) {
-                  $ctx8.next = 9;
+                  $ctx9.next = 9;
                   break;
                 }
 
-                $ctx8.next = 7;
+                $ctx9.next = 7;
 
                 return removeData(batch,
                                  e.entity, e.attribute, e.values[0], time)
               case 7:
-                $ctx8.next = 17;
+                $ctx9.next = 17;
                 break;
               case 9:
                 if (!(e.operation == 'add')) {
-                  $ctx8.next = 14;
+                  $ctx9.next = 14;
                   break;
                 }
 
-                $ctx8.next = 12;
+                $ctx9.next = 12;
 
                 return putData(batch,
                               e.entity, e.attribute, e.values[0], time)
               case 12:
-                $ctx8.next = 17;
+                $ctx9.next = 17;
                 break;
               case 14:
                 if (!(e.operation == 'chg')) {
-                  $ctx8.next = 17;
+                  $ctx9.next = 17;
                   break;
                 }
 
-                $ctx8.next = 17;
+                $ctx9.next = 17;
 
                 return putData(batch,
                               e.entity, e.attribute, e.values[1], time)
               case 17:
-                $ctx8.next = 1;
+                $ctx9.next = 1;
                 break;
               case 19:
               case "end":
-                return $ctx8.stop();
+                return $ctx9.stop();
               }
             }, this);
           }));
         };
 
-        $ctx1.rval = {
+        $ctx0.rval = {
           close: cc.nbind(db.close, db),
 
           byEntity: function(entity) {
@@ -456,8 +496,8 @@ module.exports = function(path, schema, options) {
             return cc.go(wrapGenerator.mark(function() {
               var data;
 
-              return wrapGenerator(function($ctx9) {
-                while (1) switch ($ctx9.next) {
+              return wrapGenerator(function($ctx10) {
+                while (1) switch ($ctx10.next) {
                 case 0:
                   if (range) {
                     if (attrSchema(key).indexed)
@@ -480,16 +520,16 @@ module.exports = function(path, schema, options) {
                   else
                     data = scan(['aev', key]);
 
-                  $ctx9.next = 3;
+                  $ctx10.next = 3;
                   return collated(data, function(_) { return attrSchema(key); });
                 case 3:
-                  $ctx9.rval = $ctx9.sent;
-                  delete $ctx9.thrown;
-                  $ctx9.next = 7;
+                  $ctx10.rval = $ctx10.sent;
+                  delete $ctx10.thrown;
+                  $ctx10.next = 7;
                   break;
                 case 7:
                 case "end":
-                  return $ctx9.stop();
+                  return $ctx10.stop();
                 }
               }, this);
             }));
@@ -499,25 +539,25 @@ module.exports = function(path, schema, options) {
             return atomically(wrapGenerator.mark(function(batch, time) {
               var key;
 
-              return wrapGenerator(function($ctx10) {
-                while (1) switch ($ctx10.next) {
+              return wrapGenerator(function($ctx11) {
+                while (1) switch ($ctx11.next) {
                 case 0:
-                  $ctx10.t6 = $ctx10.keys(attr);
+                  $ctx11.t7 = $ctx11.keys(attr);
                 case 1:
-                  if (!$ctx10.t6.length) {
-                    $ctx10.next = 7;
+                  if (!$ctx11.t7.length) {
+                    $ctx11.next = 7;
                     break;
                   }
 
-                  key = $ctx10.t6.pop();
-                  $ctx10.next = 5;
+                  key = $ctx11.t7.pop();
+                  $ctx11.next = 5;
                   return putData(batch, entity, key, attr[key], time);
                 case 5:
-                  $ctx10.next = 1;
+                  $ctx11.next = 1;
                   break;
                 case 7:
                 case "end":
-                  return $ctx10.stop();
+                  return $ctx11.stop();
                 }
               }, this);
             }).bind(this));
@@ -527,28 +567,28 @@ module.exports = function(path, schema, options) {
             return atomically(wrapGenerator.mark(function(batch, time) {
               var old, key;
 
-              return wrapGenerator(function($ctx11) {
-                while (1) switch ($ctx11.next) {
+              return wrapGenerator(function($ctx12) {
+                while (1) switch ($ctx12.next) {
                 case 0:
-                  $ctx11.next = 2;
+                  $ctx12.next = 2;
                   return this.byEntity(entity);
                 case 2:
-                  old = $ctx11.sent;
-                  $ctx11.t7 = $ctx11.keys(old);
+                  old = $ctx12.sent;
+                  $ctx12.t8 = $ctx12.keys(old);
                 case 4:
-                  if (!$ctx11.t7.length) {
-                    $ctx11.next = 10;
+                  if (!$ctx12.t8.length) {
+                    $ctx12.next = 10;
                     break;
                   }
 
-                  key = $ctx11.t7.pop();
-                  $ctx11.next = 8;
+                  key = $ctx12.t8.pop();
+                  $ctx12.next = 8;
                   return removeData(batch, entity, key, old[key], time);
                 case 8:
-                  $ctx11.next = 4;
+                  $ctx12.next = 4;
                   break;
                 case 10:
-                  $ctx11.next = 12;
+                  $ctx12.next = 12;
 
                   return chan.each(
                     function(item) {
@@ -559,7 +599,7 @@ module.exports = function(path, schema, options) {
                     scan(['vae', entity]))
                 case 12:
                 case "end":
-                  return $ctx11.stop();
+                  return $ctx12.stop();
                 }
               }, this);
             }).bind(this));
@@ -569,25 +609,25 @@ module.exports = function(path, schema, options) {
             return atomically(wrapGenerator.mark(function(batch, time) {
               var e;
 
-              return wrapGenerator(function($ctx12) {
-                while (1) switch ($ctx12.next) {
+              return wrapGenerator(function($ctx13) {
+                while (1) switch ($ctx13.next) {
                 case 0:
-                  $ctx12.t8 = $ctx12.keys(assign);
+                  $ctx13.t9 = $ctx13.keys(assign);
                 case 1:
-                  if (!$ctx12.t8.length) {
-                    $ctx12.next = 7;
+                  if (!$ctx13.t9.length) {
+                    $ctx13.next = 7;
                     break;
                   }
 
-                  e = $ctx12.t8.pop();
-                  $ctx12.next = 5;
+                  e = $ctx13.t9.pop();
+                  $ctx13.next = 5;
                   return putData(batch, e, key, assign[e], time);
                 case 5:
-                  $ctx12.next = 1;
+                  $ctx13.next = 1;
                   break;
                 case 7:
                 case "end":
-                  return $ctx12.stop();
+                  return $ctx13.stop();
                 }
               }, this);
             }).bind(this));
@@ -597,29 +637,29 @@ module.exports = function(path, schema, options) {
             return atomically(wrapGenerator.mark(function(batch, time) {
               var old, e;
 
-              return wrapGenerator(function($ctx13) {
-                while (1) switch ($ctx13.next) {
+              return wrapGenerator(function($ctx14) {
+                while (1) switch ($ctx14.next) {
                 case 0:
-                  $ctx13.next = 2;
+                  $ctx14.next = 2;
                   return this.byAttribute(key);
                 case 2:
-                  old = $ctx13.sent;
-                  $ctx13.t9 = $ctx13.keys(old);
+                  old = $ctx14.sent;
+                  $ctx14.t10 = $ctx14.keys(old);
                 case 4:
-                  if (!$ctx13.t9.length) {
-                    $ctx13.next = 10;
+                  if (!$ctx14.t10.length) {
+                    $ctx14.next = 10;
                     break;
                   }
 
-                  e = $ctx13.t9.pop();
-                  $ctx13.next = 8;
+                  e = $ctx14.t10.pop();
+                  $ctx14.next = 8;
                   return removeData(batch, e, key, old[e], time);
                 case 8:
-                  $ctx13.next = 4;
+                  $ctx14.next = 4;
                   break;
                 case 10:
                 case "end":
-                  return $ctx13.stop();
+                  return $ctx14.stop();
                 }
               }, this);
             }).bind(this));
@@ -627,14 +667,14 @@ module.exports = function(path, schema, options) {
 
           unlist: function(entity, attribute, values) {
             return atomically(wrapGenerator.mark(function(batch, time) {
-              return wrapGenerator(function($ctx14) {
-                while (1) switch ($ctx14.next) {
+              return wrapGenerator(function($ctx15) {
+                while (1) switch ($ctx15.next) {
                 case 0:
-                  $ctx14.next = 2;
+                  $ctx15.next = 2;
                   return removeData(batch, entity, attribute, values, time);
                 case 2:
                 case "end":
-                  return $ctx14.stop();
+                  return $ctx15.stop();
                 }
               }, this);
             }).bind(this));
@@ -644,17 +684,17 @@ module.exports = function(path, schema, options) {
             return cc.go(wrapGenerator.mark(function() {
               var timestamp;
 
-              return wrapGenerator(function($ctx15) {
-                while (1) switch ($ctx15.next) {
+              return wrapGenerator(function($ctx16) {
+                while (1) switch ($ctx16.next) {
                 case 0:
                   timestamp = {};
-                  $ctx15.next = 3;
+                  $ctx16.next = 3;
 
                   return chan.each(function(item) {
                     timestamp[item.key] = item.value;
                   }, scan(['seq']))
                 case 3:
-                  $ctx15.rval = cf.map(
+                  $ctx16.rval = cf.map(
                     function(item) {
                       var data = item.key;
                       return {
@@ -667,12 +707,12 @@ module.exports = function(path, schema, options) {
                     },
                     scan(['log']));
 
-                  delete $ctx15.thrown;
-                  $ctx15.next = 7;
+                  delete $ctx16.thrown;
+                  $ctx16.next = 7;
                   break;
                 case 7:
                 case "end":
-                  return $ctx15.stop();
+                  return $ctx16.stop();
                 }
               }, this);
             }));
@@ -682,41 +722,41 @@ module.exports = function(path, schema, options) {
             return cc.go(wrapGenerator.mark(function() {
               var lastTime, i, e, group;
 
-              return wrapGenerator(function($ctx16) {
-                while (1) switch ($ctx16.next) {
+              return wrapGenerator(function($ctx17) {
+                while (1) switch ($ctx17.next) {
                 case 0:
                   lastTime = 0;
                   group = [];
-                  $ctx16.t10 = $ctx16.keys(log);
+                  $ctx17.t11 = $ctx17.keys(log);
                 case 3:
-                  if (!$ctx16.t10.length) {
-                    $ctx16.next = 14;
+                  if (!$ctx17.t11.length) {
+                    $ctx17.next = 14;
                     break;
                   }
 
-                  i = $ctx16.t10.pop();
+                  i = $ctx17.t11.pop();
                   e = log[i];
 
                   if (!(e.timestamp > lastTime)) {
-                    $ctx16.next = 11;
+                    $ctx17.next = 11;
                     break;
                   }
 
-                  $ctx16.next = 9;
+                  $ctx17.next = 9;
                   return replay(group);
                 case 9:
                   group = [];
                   lastTime = e.timestamp;
                 case 11:
                   group.push(e);
-                  $ctx16.next = 3;
+                  $ctx17.next = 3;
                   break;
                 case 14:
-                  $ctx16.next = 17;
+                  $ctx17.next = 17;
                   return replay(group);
                 case 17:
                 case "end":
-                  return $ctx16.stop();
+                  return $ctx17.stop();
                 }
               }, this);
             }));
@@ -727,12 +767,12 @@ module.exports = function(path, schema, options) {
           }
         };
 
-        delete $ctx1.thrown;
-        $ctx1.next = 17;
+        delete $ctx0.thrown;
+        $ctx0.next = 18;
         break;
-      case 17:
+      case 18:
       case "end":
-        return $ctx1.stop();
+        return $ctx0.stop();
       }
     }, this);
   }))

@@ -4,7 +4,7 @@ var memdown  = require('memdown');
 
 var cc     = require('ceci-core');
 var chan   = require('ceci-channels');
-var engine = require('./index');
+var engine = require('../index');
 
 
 var formatEntity = function(db, key) {
@@ -50,6 +50,7 @@ var show = function(db, entities, attributes) {
 
 var schema = {
   greeting: {
+    indirect: true,
     indexed: function(text) { return text.trim().split(/\s*\b/); }
   },
   weight: {

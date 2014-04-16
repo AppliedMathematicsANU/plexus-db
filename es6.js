@@ -1,5 +1,7 @@
 'use strict';
 
+var crypto = require('crypto');
+
 var levelup  = require('levelup');
 var bops     = require('bops');
 var bytewise = require('bytewise');
@@ -19,33 +21,19 @@ var decode = function(code) {
 };
 
 
+var sha1Hash = function(data) {
+  return crypto.createHash('sha1')
+    .update('blob ' + data.length + '\0')
+    .update(data)
+    .digest('hex');
+};
+
+
 var indexKeys = function(value, indexer) {
   if (typeof indexer == 'function')
     return indexer(value);
   else
     return [value];
-};
-
-
-var collated = function(input, getSchema) {
-  return cc.go(function*() {
-    var result = {};
-
-    yield chan.each(
-      function(item) {
-        var key = item.key[0];
-        var val = item.key[1];
-        if (!getSchema(key).multiple)
-          result[key] = val;
-        else if (result[key])
-          result[key].push(val);
-        else
-          result[key] = [val];
-      },
-      input);
-
-    return result;
-  });
 };
 
 
@@ -145,6 +133,32 @@ module.exports = function(path, schema, options) {
       );
     };
 
+    var collated = function(input, getSchema) {
+      return cc.go(function*() {
+        var result = {};
+
+        yield chan.each(
+          function(item) {
+            return cc.go(function*() {
+              var key = item.key[0];
+              var val = item.key[1];
+              if (getSchema(key).indirect)
+                val = JSON.parse(
+                  yield cc.nbind(db.get, db)(encode(['dat', val])));
+              if (!getSchema(key).multiple)
+                result[key] = val;
+              else if (result[key])
+                result[key].push(val);
+              else
+                result[key] = [val];
+            });
+          },
+          input);
+
+        return result;
+      });
+    };
+
     var exists = function(entity, attribute, value) {
       return cc.go(function*() {
         var result = false;
@@ -209,9 +223,14 @@ module.exports = function(path, schema, options) {
       var schema = attrSchema(attr);
       return cc.go(function*() {
         var a = (schema.multiple && Array.isArray(val)) ? val : [val];
-        var i, v, old;
+        var i, v, old, text;
         for (i in a) {
           v = a[i];
+          if (schema.indirect) {
+            text = JSON.stringify(v);
+            v = sha1Hash(text);
+            batch.put(encode(['dat', v]), text);
+          }
           if (!(yield exists(entity, attr, v))) {
             old = schema.multiple ? [] : (yield values(entity, attr));
             putDatum(batch, entity, attr, v, old[0], schema, time);
