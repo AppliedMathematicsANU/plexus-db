@@ -133,6 +133,12 @@ module.exports = function(path, schema, options) {
       );
     };
 
+    var resolve = function(val) {
+      return cc.go(function*() {
+        return JSON.parse(yield cc.nbind(db.get, db)(encode(['dat', val])));
+      });
+    };
+
     var collated = function(input, getSchema) {
       return cc.go(function*() {
         var result = {};
@@ -143,8 +149,7 @@ module.exports = function(path, schema, options) {
               var key = item.key[0];
               var val = item.key[1];
               if (getSchema(key).indirect)
-                val = JSON.parse(
-                  yield cc.nbind(db.get, db)(encode(['dat', val])));
+                val = yield resolve(val);
               if (!getSchema(key).multiple)
                 result[key] = val;
               else if (result[key])
@@ -354,14 +359,25 @@ module.exports = function(path, schema, options) {
 
           return cf.map(
             function(item) {
-              var data = item.key;
-              return {
-                timestamp: timestamp[data[0]],
-                entity   : data[1],
-                attribute: data[2],
-                operation: data[3],
-                values   : data.slice(4)
-              };
+              return cc.go(function*() {
+                var data   = item.key;
+                var time   = timestamp[data[0]];
+                var entity = data[1];
+                var attr   = data[2];
+                var op     = data[3];
+                var values = data.slice(4);
+
+                if (attr.schema[attr].indirect)
+                  values = yield cc.join(values.map(resolve));
+
+                return {
+                  timestamp: time,
+                  entity   : entity,
+                  attribute: attr,
+                  operation: op,
+                  values   : values
+                };
+              });
             },
             scan(['log']));
         });
