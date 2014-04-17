@@ -729,7 +729,7 @@ module.exports = function(path, schema, options) {
                             op = data[3];
                             values = data.slice(4);
 
-                            if (!attr.schema[attr].indirect) {
+                            if (!attrSchema(attr).indirect) {
                               $ctx18.next = 10;
                               break;
                             }

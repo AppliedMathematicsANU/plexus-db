@@ -367,7 +367,7 @@ module.exports = function(path, schema, options) {
                 var op     = data[3];
                 var values = data.slice(4);
 
-                if (attr.schema[attr].indirect)
+                if (attrSchema(attr).indirect)
                   values = yield cc.join(values.map(resolve));
 
                 return {
