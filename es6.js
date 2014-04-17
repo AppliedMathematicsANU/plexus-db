@@ -59,30 +59,6 @@ var entriesFor = function(entity, attr, val, attrSchema) {
 };
 
 
-var removeDatum = function(batch, entity, attr, val, attrSchema, time, log) {
-  if (log)
-    addLog(batch, time, entity, attr, 'del', val);
-
-  entriesFor(entity, attr, val, attrSchema).forEach(function(e) {
-    batch.del(e);
-  });
-};
-
-
-var putDatum = function(batch, entity, attr, val, old, attrSchema, time) {
-  if (old === undefined)
-    addLog(batch, time, entity, attr, 'add', val);
-  else {
-    removeDatum(batch, entity, attr, old, attrSchema, time, false);
-    addLog(batch, time, entity, attr, 'chg', old, val);
-  }
-
-  entriesFor(entity, attr, val, attrSchema).forEach(function(e) {
-    batch.put(e, time);
-  });
-};
-
-
 var scanOptions = function(prefix, range, limit) {
   var start;
   var end;
@@ -225,8 +201,13 @@ module.exports = function(path, schema, options) {
           v = a[i];
           if (schema.indirect)
             v = encodeIndirect(v).hash;
-          if (yield exists(entity, attr, v))
-            removeDatum(batch, entity, attr, v, schema, time, true);
+          if (yield exists(entity, attr, v)) {
+            addLog(batch, time, entity, attr, 'del', v);
+
+            entriesFor(entity, attr, v, schema).forEach(function(e) {
+              batch.del(e);
+            });
+          }
         }
       });
     };
@@ -244,8 +225,20 @@ module.exports = function(path, schema, options) {
             v = tmp.hash;
           }
           if (!(yield exists(entity, attr, v))) {
-            old = schema.multiple ? [] : (yield values(entity, attr));
-            putDatum(batch, entity, attr, v, old[0], schema, time);
+            old = schema.multiple ? undefined : (yield values(entity, attr))[0];
+
+            if (old === undefined)
+              addLog(batch, time, entity, attr, 'add', v);
+            else {
+              entriesFor(entity, attr, old, schema).forEach(function(e) {
+                batch.del(e);
+              });
+              addLog(batch, time, entity, attr, 'chg', old, v);
+            }
+
+            entriesFor(entity, attr, v, schema).forEach(function(e) {
+              batch.put(e, time);
+            });
           }
         }
       });

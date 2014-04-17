@@ -59,30 +59,6 @@ var entriesFor = function(entity, attr, val, attrSchema) {
 };
 
 
-var removeDatum = function(batch, entity, attr, val, attrSchema, time, log) {
-  if (log)
-    addLog(batch, time, entity, attr, 'del', val);
-
-  entriesFor(entity, attr, val, attrSchema).forEach(function(e) {
-    batch.del(e);
-  });
-};
-
-
-var putDatum = function(batch, entity, attr, val, old, attrSchema, time) {
-  if (old === undefined)
-    addLog(batch, time, entity, attr, 'add', val);
-  else {
-    removeDatum(batch, entity, attr, old, attrSchema, time, false);
-    addLog(batch, time, entity, attr, 'chg', old, val);
-  }
-
-  entriesFor(entity, attr, val, attrSchema).forEach(function(e) {
-    batch.put(e, time);
-  });
-};
-
-
 var scanOptions = function(prefix, range, limit) {
   var start;
   var end;
@@ -353,7 +329,7 @@ module.exports = function(path, schema, options) {
                 $ctx8.t3 = $ctx8.keys(a);
               case 2:
                 if (!$ctx8.t3.length) {
-                  $ctx8.next = 12;
+                  $ctx8.next = 13;
                   break;
                 }
 
@@ -367,15 +343,19 @@ module.exports = function(path, schema, options) {
                 return exists(entity, attr, v);
               case 8:
                 if (!$ctx8.sent) {
-                  $ctx8.next = 10;
+                  $ctx8.next = 11;
                   break;
                 }
 
-                removeDatum(batch, entity, attr, v, schema, time, true);
-              case 10:
+                addLog(batch, time, entity, attr, 'del', v);
+
+                entriesFor(entity, attr, v, schema).forEach(function(e) {
+                  batch.del(e);
+                });
+              case 11:
                 $ctx8.next = 2;
                 break;
-              case 12:
+              case 13:
               case "end":
                 return $ctx8.stop();
               }
@@ -395,7 +375,7 @@ module.exports = function(path, schema, options) {
                 $ctx9.t4 = $ctx9.keys(a);
               case 2:
                 if (!$ctx9.t4.length) {
-                  $ctx9.next = 20;
+                  $ctx9.next = 21;
                   break;
                 }
 
@@ -412,7 +392,7 @@ module.exports = function(path, schema, options) {
                 return exists(entity, attr, v);
               case 8:
                 if (!!$ctx9.sent) {
-                  $ctx9.next = 18;
+                  $ctx9.next = 19;
                   break;
                 }
 
@@ -421,21 +401,33 @@ module.exports = function(path, schema, options) {
                   break;
                 }
 
-                $ctx9.t5 = [];
+                $ctx9.t5 = undefined;
                 $ctx9.next = 16;
                 break;
               case 13:
                 $ctx9.next = 15;
                 return values(entity, attr);
               case 15:
-                $ctx9.t5 = $ctx9.sent;
+                $ctx9.t5 = $ctx9.sent[0];
               case 16:
                 old = $ctx9.t5;
-                putDatum(batch, entity, attr, v, old[0], schema, time);
-              case 18:
+
+                if (old === undefined)
+                  addLog(batch, time, entity, attr, 'add', v);
+                else {
+                  entriesFor(entity, attr, old, schema).forEach(function(e) {
+                    batch.del(e);
+                  });
+                  addLog(batch, time, entity, attr, 'chg', old, v);
+                }
+
+                entriesFor(entity, attr, v, schema).forEach(function(e) {
+                  batch.put(e, time);
+                });
+              case 19:
                 $ctx9.next = 2;
                 break;
-              case 20:
+              case 21:
               case "end":
                 return $ctx9.stop();
               }
