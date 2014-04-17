@@ -116,7 +116,7 @@ module.exports = function(path, schema, options) {
   schema = schema || {};
 
   return cc.go(wrapGenerator.mark(function() {
-    var db, lock, scan, resolve, collated, exists, values, nextTimestamp, atomically, attrSchema, removeData, putData, replay;
+    var db, lock, scan, resolveIndirect, encodeIndirect, collated, exists, values, nextTimestamp, atomically, attrSchema, removeData, putData, replay;
 
     return wrapGenerator(function($ctx0) {
       while (1) switch ($ctx0.next) {
@@ -141,7 +141,7 @@ module.exports = function(path, schema, options) {
           );
         };
 
-        resolve = function(val) {
+        resolveIndirect = function(val) {
           return cc.go(wrapGenerator.mark(function() {
             return wrapGenerator(function($ctx1) {
               while (1) switch ($ctx1.next) {
@@ -160,6 +160,11 @@ module.exports = function(path, schema, options) {
               }
             }, this);
           }));
+        };
+
+        encodeIndirect = function(val) {
+          var text = JSON.stringify(val);
+          return { text: text, hash: sha1Hash(text) };
         };
 
         collated = function(input, getSchema) {
@@ -189,7 +194,7 @@ module.exports = function(path, schema, options) {
                           }
 
                           $ctx3.next = 5;
-                          return resolve(val);
+                          return resolveIndirect(val);
                         case 5:
                           val = $ctx3.sent;
                         case 6:
@@ -348,25 +353,29 @@ module.exports = function(path, schema, options) {
                 $ctx8.t3 = $ctx8.keys(a);
               case 2:
                 if (!$ctx8.t3.length) {
-                  $ctx8.next = 11;
+                  $ctx8.next = 12;
                   break;
                 }
 
                 i = $ctx8.t3.pop();
                 v = a[i];
-                $ctx8.next = 7;
+
+                if (schema.indirect)
+                  v = encodeIndirect(v).hash;
+
+                $ctx8.next = 8;
                 return exists(entity, attr, v);
-              case 7:
+              case 8:
                 if (!$ctx8.sent) {
-                  $ctx8.next = 9;
+                  $ctx8.next = 10;
                   break;
                 }
 
                 removeDatum(batch, entity, attr, v, schema, time, true);
-              case 9:
+              case 10:
                 $ctx8.next = 2;
                 break;
-              case 11:
+              case 12:
               case "end":
                 return $ctx8.stop();
               }
@@ -377,7 +386,7 @@ module.exports = function(path, schema, options) {
         putData = function(batch, entity, attr, val, time) {
           var schema = attrSchema(attr);
           return cc.go(wrapGenerator.mark(function() {
-            var a, i, v, old, text;
+            var a, i, v, old, tmp;
 
             return wrapGenerator(function($ctx9) {
               while (1) switch ($ctx9.next) {
@@ -394,9 +403,9 @@ module.exports = function(path, schema, options) {
                 v = a[i];
 
                 if (schema.indirect) {
-                  text = JSON.stringify(v);
-                  v = sha1Hash(text);
-                  batch.put(encode(['dat', v]), text);
+                  tmp = encodeIndirect(v);
+                  batch.put(encode(['dat', tmp.hash]), tmp.text);
+                  v = tmp.hash;
                 }
 
                 $ctx9.next = 8;
@@ -735,7 +744,7 @@ module.exports = function(path, schema, options) {
                             }
 
                             $ctx18.next = 9;
-                            return cc.join(values.map(resolve));
+                            return cc.join(values.map(resolveIndirect));
                           case 9:
                             values = $ctx18.sent;
                           case 10:
@@ -820,9 +829,9 @@ module.exports = function(path, schema, options) {
         };
 
         delete $ctx0.thrown;
-        $ctx0.next = 19;
+        $ctx0.next = 20;
         break;
-      case 19:
+      case 20:
       case "end":
         return $ctx0.stop();
       }

@@ -133,10 +133,15 @@ module.exports = function(path, schema, options) {
       );
     };
 
-    var resolve = function(val) {
+    var resolveIndirect = function(val) {
       return cc.go(function*() {
         return JSON.parse(yield cc.nbind(db.get, db)(encode(['dat', val])));
       });
+    };
+
+    var encodeIndirect = function(val) {
+      var text = JSON.stringify(val);
+      return { text: text, hash: sha1Hash(text) };
     };
 
     var collated = function(input, getSchema) {
@@ -149,7 +154,7 @@ module.exports = function(path, schema, options) {
               var key = item.key[0];
               var val = item.key[1];
               if (getSchema(key).indirect)
-                val = yield resolve(val);
+                val = yield resolveIndirect(val);
               if (!getSchema(key).multiple)
                 result[key] = val;
               else if (result[key])
@@ -218,6 +223,8 @@ module.exports = function(path, schema, options) {
         var i, v;
         for (i in a) {
           v = a[i];
+          if (schema.indirect)
+            v = encodeIndirect(v).hash;
           if (yield exists(entity, attr, v))
             removeDatum(batch, entity, attr, v, schema, time, true);
         }
@@ -228,13 +235,13 @@ module.exports = function(path, schema, options) {
       var schema = attrSchema(attr);
       return cc.go(function*() {
         var a = (schema.multiple && Array.isArray(val)) ? val : [val];
-        var i, v, old, text;
+        var i, v, old, tmp;
         for (i in a) {
           v = a[i];
           if (schema.indirect) {
-            text = JSON.stringify(v);
-            v = sha1Hash(text);
-            batch.put(encode(['dat', v]), text);
+            tmp = encodeIndirect(v);
+            batch.put(encode(['dat', tmp.hash]), tmp.text);
+            v = tmp.hash;
           }
           if (!(yield exists(entity, attr, v))) {
             old = schema.multiple ? [] : (yield values(entity, attr));
@@ -368,7 +375,7 @@ module.exports = function(path, schema, options) {
                 var values = data.slice(4);
 
                 if (attrSchema(attr).indirect)
-                  values = yield cc.join(values.map(resolve));
+                  values = yield cc.join(values.map(resolveIndirect));
 
                 return {
                   timestamp: time,
