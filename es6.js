@@ -218,7 +218,7 @@ module.exports = function(path, schema, options) {
       var schema = attrSchema(attr);
       return cc.go(function*() {
         var a = (schema.multiple && Array.isArray(val)) ? val : [val];
-        var i, raw, v, old, tmp;
+        var i, raw, v, old, oRaw, tmp;
         for (i in a) {
           raw = a[i];
           if (schema.indirect) {
@@ -235,10 +235,10 @@ module.exports = function(path, schema, options) {
               addLog(batch, time, entity, attr, 'add', v);
             else {
               if (schema.indirect)
-                raw = yield resolveIndirect(old);
+                oRaw = yield resolveIndirect(old);
               else
-                raw = old;
-              entriesFor(entity, attr, old, raw, schema).forEach(function(e) {
+                oRaw = old;
+              entriesFor(entity, attr, old, oRaw, schema).forEach(function(e) {
                 batch.del(e);
               });
               addLog(batch, time, entity, attr, 'chg', old, v);

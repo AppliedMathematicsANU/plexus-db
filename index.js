@@ -368,7 +368,7 @@ module.exports = function(path, schema, options) {
         putData = function(batch, entity, attr, val, time) {
           var schema = attrSchema(attr);
           return cc.go(wrapGenerator.mark(function() {
-            var a, i, raw, v, old, tmp;
+            var a, i, raw, v, old, oRaw, tmp;
 
             return wrapGenerator(function($ctx9) {
               while (1) switch ($ctx9.next) {
@@ -433,13 +433,13 @@ module.exports = function(path, schema, options) {
                 $ctx9.next = 24;
                 return resolveIndirect(old);
               case 24:
-                raw = $ctx9.sent;
+                oRaw = $ctx9.sent;
                 $ctx9.next = 28;
                 break;
               case 27:
-                raw = old;
+                oRaw = old;
               case 28:
-                entriesFor(entity, attr, old, raw, schema).forEach(function(e) {
+                entriesFor(entity, attr, old, oRaw, schema).forEach(function(e) {
                   batch.del(e);
                 });
 
