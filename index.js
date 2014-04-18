@@ -43,13 +43,13 @@ var addLog = function(batch, time, entity, attr, op) {
 };
 
 
-var entriesFor = function(entity, attr, val, attrSchema) {
+var entriesFor = function(entity, attr, val, rawVal, attrSchema) {
   var tmp = [
     ['eav', entity, attr, val],
     ['aev', attr, entity, val]];
 
   if (attrSchema.indexed)
-    indexKeys(val, attrSchema.indexed).forEach(function(key) {
+    indexKeys(rawVal, attrSchema.indexed).forEach(function(key) {
       tmp.push(['ave', attr, key, entity]);
     });
   if (attrSchema.reference)
@@ -320,7 +320,7 @@ module.exports = function(path, schema, options) {
         removeData = function(batch, entity, attr, val, time) {
           var schema = attrSchema(attr);
           return cc.go(wrapGenerator.mark(function() {
-            var a, i, v;
+            var a, i, raw, v;
 
             return wrapGenerator(function($ctx8) {
               while (1) switch ($ctx8.next) {
@@ -334,10 +334,12 @@ module.exports = function(path, schema, options) {
                 }
 
                 i = $ctx8.t3.pop();
-                v = a[i];
+                raw = a[i];
 
                 if (schema.indirect)
-                  v = encodeIndirect(v).hash;
+                  v = encodeIndirect(raw).hash;
+                else
+                  v = raw;
 
                 $ctx8.next = 8;
                 return exists(entity, attr, v);
@@ -349,7 +351,7 @@ module.exports = function(path, schema, options) {
 
                 addLog(batch, time, entity, attr, 'del', v);
 
-                entriesFor(entity, attr, v, schema).forEach(function(e) {
+                entriesFor(entity, attr, v, raw, schema).forEach(function(e) {
                   batch.del(e);
                 });
               case 11:
@@ -366,7 +368,7 @@ module.exports = function(path, schema, options) {
         putData = function(batch, entity, attr, val, time) {
           var schema = attrSchema(attr);
           return cc.go(wrapGenerator.mark(function() {
-            var a, i, v, old, tmp;
+            var a, i, raw, v, old, tmp;
 
             return wrapGenerator(function($ctx9) {
               while (1) switch ($ctx9.next) {
@@ -375,24 +377,26 @@ module.exports = function(path, schema, options) {
                 $ctx9.t4 = $ctx9.keys(a);
               case 2:
                 if (!$ctx9.t4.length) {
-                  $ctx9.next = 21;
+                  $ctx9.next = 33;
                   break;
                 }
 
                 i = $ctx9.t4.pop();
-                v = a[i];
+                raw = a[i];
 
                 if (schema.indirect) {
-                  tmp = encodeIndirect(v);
+                  tmp = encodeIndirect(raw);
                   batch.put(encode(['dat', tmp.hash]), tmp.text);
                   v = tmp.hash;
                 }
+                else
+                  v = raw;
 
                 $ctx9.next = 8;
                 return exists(entity, attr, v);
               case 8:
                 if (!!$ctx9.sent) {
-                  $ctx9.next = 19;
+                  $ctx9.next = 31;
                   break;
                 }
 
@@ -412,22 +416,42 @@ module.exports = function(path, schema, options) {
               case 16:
                 old = $ctx9.t5;
 
-                if (old === undefined)
-                  addLog(batch, time, entity, attr, 'add', v);
-                else {
-                  entriesFor(entity, attr, old, schema).forEach(function(e) {
-                    batch.del(e);
-                  });
-                  addLog(batch, time, entity, attr, 'chg', old, v);
+                if (!(old === undefined)) {
+                  $ctx9.next = 21;
+                  break;
                 }
 
-                entriesFor(entity, attr, v, schema).forEach(function(e) {
-                  batch.put(e, time);
-                });
-              case 19:
-                $ctx9.next = 2;
+                addLog(batch, time, entity, attr, 'add', v);
+                $ctx9.next = 30;
                 break;
               case 21:
+                if (!schema.indirect) {
+                  $ctx9.next = 27;
+                  break;
+                }
+
+                $ctx9.next = 24;
+                return resolveIndirect(old);
+              case 24:
+                raw = $ctx9.sent;
+                $ctx9.next = 28;
+                break;
+              case 27:
+                raw = old;
+              case 28:
+                entriesFor(entity, attr, old, raw, schema).forEach(function(e) {
+                  batch.del(e);
+                });
+
+                addLog(batch, time, entity, attr, 'chg', old, v);
+              case 30:
+                entriesFor(entity, attr, v, raw, schema).forEach(function(e) {
+                  batch.put(e, time);
+                });
+              case 31:
+                $ctx9.next = 2;
+                break;
+              case 33:
               case "end":
                 return $ctx9.stop();
               }
@@ -521,7 +545,7 @@ module.exports = function(path, schema, options) {
                 while (1) switch ($ctx11.next) {
                 case 0:
                   if (range) {
-                    if (attrSchema(key).indexed)
+                    if (attrSchema(key).indexed) {
                       data = cf.map(
                         function(item) {
                           return {
@@ -530,19 +554,27 @@ module.exports = function(path, schema, options) {
                           }
                         },
                         scan(['ave', key], range));
-                    else
+                    } else {
                       data = cf.filter(
                         function(item) {
                           var val = item.key[1];
                           return val >= range.from && val <= range.to;
                         },
                         scan(['aev', key]));
+                    }
                   }
                   else
                     data = scan(['aev', key]);
 
                   $ctx11.next = 3;
-                  return collated(data, function(_) { return attrSchema(key); });
+
+                  return collated(data, function(_) {
+                    return {
+                      multiple: attrSchema(key).multiple,
+                      indirect: (attrSchema(key).indirect &&
+                                 !(range && attrSchema(key).indexed))
+                    };
+                  })
                 case 3:
                   $ctx11.rval = $ctx11.sent;
                   delete $ctx11.thrown;

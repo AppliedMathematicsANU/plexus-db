@@ -43,13 +43,13 @@ var addLog = function(batch, time, entity, attr, op) {
 };
 
 
-var entriesFor = function(entity, attr, val, attrSchema) {
+var entriesFor = function(entity, attr, val, rawVal, attrSchema) {
   var tmp = [
     ['eav', entity, attr, val],
     ['aev', attr, entity, val]];
 
   if (attrSchema.indexed)
-    indexKeys(val, attrSchema.indexed).forEach(function(key) {
+    indexKeys(rawVal, attrSchema.indexed).forEach(function(key) {
       tmp.push(['ave', attr, key, entity]);
     });
   if (attrSchema.reference)
@@ -196,15 +196,17 @@ module.exports = function(path, schema, options) {
       var schema = attrSchema(attr);
       return cc.go(function*() {
         var a = (schema.multiple && Array.isArray(val)) ? val : [val];
-        var i, v;
+        var i, raw, v;
         for (i in a) {
-          v = a[i];
+          raw = a[i];
           if (schema.indirect)
-            v = encodeIndirect(v).hash;
+            v = encodeIndirect(raw).hash;
+          else
+            v = raw;
           if (yield exists(entity, attr, v)) {
             addLog(batch, time, entity, attr, 'del', v);
 
-            entriesFor(entity, attr, v, schema).forEach(function(e) {
+            entriesFor(entity, attr, v, raw, schema).forEach(function(e) {
               batch.del(e);
             });
           }
@@ -216,27 +218,33 @@ module.exports = function(path, schema, options) {
       var schema = attrSchema(attr);
       return cc.go(function*() {
         var a = (schema.multiple && Array.isArray(val)) ? val : [val];
-        var i, v, old, tmp;
+        var i, raw, v, old, tmp;
         for (i in a) {
-          v = a[i];
+          raw = a[i];
           if (schema.indirect) {
-            tmp = encodeIndirect(v);
+            tmp = encodeIndirect(raw);
             batch.put(encode(['dat', tmp.hash]), tmp.text);
             v = tmp.hash;
           }
+          else
+            v = raw;
           if (!(yield exists(entity, attr, v))) {
             old = schema.multiple ? undefined : (yield values(entity, attr))[0];
 
             if (old === undefined)
               addLog(batch, time, entity, attr, 'add', v);
             else {
-              entriesFor(entity, attr, old, schema).forEach(function(e) {
+              if (schema.indirect)
+                raw = yield resolveIndirect(old);
+              else
+                raw = old;
+              entriesFor(entity, attr, old, raw, schema).forEach(function(e) {
                 batch.del(e);
               });
               addLog(batch, time, entity, attr, 'chg', old, v);
             }
 
-            entriesFor(entity, attr, v, schema).forEach(function(e) {
+            entriesFor(entity, attr, v, raw, schema).forEach(function(e) {
               batch.put(e, time);
             });
           }
@@ -282,7 +290,7 @@ module.exports = function(path, schema, options) {
           var data;
 
           if (range) {
-            if (attrSchema(key).indexed)
+            if (attrSchema(key).indexed) {
               data = cf.map(
                 function(item) {
                   return {
@@ -291,18 +299,25 @@ module.exports = function(path, schema, options) {
                   }
                 },
                 scan(['ave', key], range));
-            else
+            } else {
               data = cf.filter(
                 function(item) {
                   var val = item.key[1];
                   return val >= range.from && val <= range.to;
                 },
                 scan(['aev', key]));
+            }
           }
           else
             data = scan(['aev', key]);
 
-          return yield collated(data, function(_) { return attrSchema(key); });
+          return yield collated(data, function(_) {
+            return {
+              multiple: attrSchema(key).multiple,
+              indirect: (attrSchema(key).indirect &&
+                         !(range && attrSchema(key).indexed))
+            };
+          });
         });
       },
 
