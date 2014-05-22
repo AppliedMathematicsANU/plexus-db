@@ -1,12 +1,12 @@
 {
   "name": "plexus-db",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "main": "./index.js",
   "dependencies": {
     "ceci-core": "~0.2.0",
-    "ceci-channels": "~0.1.0",
-    "ceci-filters": "odf/ceci-filters",
+    "ceci-channels": "~0.1.3",
+    "ceci-filters": "~0.1.0",
     "bytewise": "~0.7.0",
     "bops": "~0.1.1",
     "levelup": "~0.18.2",
