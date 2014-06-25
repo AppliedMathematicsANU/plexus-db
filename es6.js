@@ -8,7 +8,6 @@ var bytewise = require('bytewise');
 
 var cc   = require('ceci-core');
 var chan = require('ceci-channels');
-var cf   = require('ceci-filters');
 
 
 var encode = function(data) {
@@ -88,6 +87,35 @@ var scanOptions = function(prefix, range, limit) {
 };
 
 
+function mapChannel(fn, ch) {
+  var out = chan.chan();
+
+  cc.go(function*() {
+    var item;
+    while (undefined !== (item = yield chan.pull(ch)))
+      yield chan.push(out, yield fn(item));
+    chan.close(out);
+  });
+
+  return out;
+};
+
+
+function filterChannel(fn, ch) {
+  var out = chan.chan();
+
+  cc.go(function*() {
+    var item;
+    while (undefined !== (item = yield chan.pull(ch)))
+      if (yield fn(item))
+        yield chan.push(out, item);
+    chan.close(out);
+  });
+
+  return out;
+};
+
+
 module.exports = function(path, schema, options) {
   schema = schema || {};
 
@@ -98,7 +126,7 @@ module.exports = function(path, schema, options) {
     var scan = function(prefix, range, limit) {
       var stream = db.createReadStream(scanOptions(prefix, range, limit));
 
-      return cf.map(
+      return mapChannel(
         function(item) {
           return {
             key  : decode(item.key).slice(prefix.length),
@@ -291,7 +319,7 @@ module.exports = function(path, schema, options) {
 
           if (range) {
             if (attrSchema(key).indexed) {
-              data = cf.map(
+              data = mapChannel(
                 function(item) {
                   return {
                     key  : [item.key[1], item.key[0]],
@@ -300,7 +328,7 @@ module.exports = function(path, schema, options) {
                 },
                 scan(['ave', key], range));
             } else {
-              data = cf.filter(
+              data = filterChannel(
                 function(item) {
                   var val = item.key[1];
                   return val >= range.from && val <= range.to;
@@ -372,7 +400,7 @@ module.exports = function(path, schema, options) {
             timestamp[item.key] = item.value;
           }, scan(['seq']));
 
-          return cf.map(
+          return mapChannel(
             function(item) {
               return cc.go(function*() {
                 var data   = item.key;
