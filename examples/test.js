@@ -132,5 +132,7 @@ cc.top(cc.go(function*() {
 
   db = yield engine('', schema, { db: memdown });
   yield db.replay(log);
+
+  console.log('--- db copy from replayed log: ---');
   yield show(db, entities, attributes);
 }));
